@@ -1,6 +1,6 @@
 package DBTest;
 
-import main.auth.MySQLAuthConfig.DatabaseAuthInformation;
+import main.auth.config.DatabaseAuthInformation;
 import org.junit.Test;
 
 import java.sql.*;

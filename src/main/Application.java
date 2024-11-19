@@ -1,5 +1,7 @@
 package main;
 
+import main.auth.config.DatabaseAuthInformation;
+import main.auth.config.DatabaseConnectionManager;
 import main.auth.repository.UserRepository;
 import main.auth.service.UserService;
 
@@ -13,7 +15,15 @@ public class Application {
 
     public Application() {
         this.scanner = new Scanner(System.in);
-        this.userService = new UserService(new UserRepository());
+
+        // DB 설정 초기화
+        DatabaseAuthInformation dbInfo = new DatabaseAuthInformation();
+        dbInfo.parse_auth_info("src/main/auth/config/mysql.auth");
+
+        // 의존성 주입
+        DatabaseConnectionManager connectionManager = new DatabaseConnectionManager(dbInfo);
+        UserRepository userRepository = new UserRepository(connectionManager);
+        this.userService = new UserService(userRepository);
         this.authController = new AuthenticationController(userService);
     }
 

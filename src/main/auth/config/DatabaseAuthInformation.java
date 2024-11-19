@@ -1,4 +1,4 @@
-package main.auth.MySQLAuthConfig;
+package main.auth.config;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -14,7 +14,7 @@ host=localhost
 port=3306
 
 # Database name
-database=university_db
+database=virtual_coin_system
 
 # Username
 username=root

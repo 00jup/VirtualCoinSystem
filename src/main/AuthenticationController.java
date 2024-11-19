@@ -38,12 +38,32 @@ public class AuthenticationController {
         while (true) {
             System.out.print("아이디 입력: ");
             String username = scanner.nextLine();
-            System.out.print("비밀번호 입력: ");
-            String password = scanner.nextLine();
-            System.out.print("비밀번호 확인: ");
-            String confirmPassword = scanner.nextLine();
 
-            if (userService.register(username, password, confirmPassword)) {
+            String password;
+            String confirmPassword;
+
+            while (true) {
+                System.out.print("비밀번호 입력: ");
+                password = scanner.nextLine();
+                System.out.print("비밀번호 확인: ");
+                confirmPassword = scanner.nextLine();
+
+                if (password.equals(confirmPassword)) {
+                    break;
+                }
+                System.out.println("비밀번호가 일치하지 않는다");
+            }
+
+            System.out.print("이메일 입력: ");
+            String email = scanner.nextLine();
+
+            System.out.print("전화번호 입력: ");
+            String phoneNumber = scanner.nextLine();
+
+            System.out.print("이름 입력: ");
+            String fullName = scanner.nextLine();
+
+            if (userService.register(username, password, email, phoneNumber, fullName)) {
                 break;
             }
         }

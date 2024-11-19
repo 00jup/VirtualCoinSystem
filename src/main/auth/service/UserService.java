@@ -11,7 +11,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public boolean register(String username, String password, String confirmPassword) {
+    public boolean register(String email, String username, String password, String confirmPassword, String full_name) {
         if (!password.equals(confirmPassword)) {
             System.out.println("비밀번호가 일치하지 않는다");
             return false;
@@ -22,7 +22,8 @@ public class UserService {
             return false;
         }
 
-        userRepository.save(new User(username, password));
+        User user = new User(null, email, password, username, full_name, null, "ACTIVE", false);
+        userRepository.save(user);
         System.out.println("회원가입 완료");
         return true;
     }
