@@ -17,7 +17,7 @@ public class UserService {
             return false;
         }
 
-        if (userRepository.findByUsername(username) != null) {
+        if (userRepository.findByEmail(email) != null) {
             System.out.println("이미 존재하는 아이디다");
             return false;
         }
@@ -28,9 +28,9 @@ public class UserService {
         return true;
     }
 
-    public boolean login(String username, String password) {
-        User user = userRepository.findByUsername(username);
-        if (user != null && user.getPassword().equals(password)) {
+    public boolean login(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && user.getPassword_hash().equals(password)) {
             System.out.println("로그인 성공");
             return true;
         }

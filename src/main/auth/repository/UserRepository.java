@@ -12,8 +12,8 @@ import java.sql.SQLException;
 public class UserRepository {
     private final DatabaseConnectionManager connectionManager;
     private static final String INSERT_USER = "INSERT INTO users (username, password) VALUES (?, ?)";
-    private static final String SELECT_USER = "SELECT username, password FROM users WHERE username = ?";
-    private static final String UPDATE_USER = "UPDATE users SET password = ? WHERE username = ?";
+    private static final String SELECT_USER = "SELECT username, password_hash FROM users WHERE username = ?";
+    private static final String UPDATE_USER = "UPDATE users SET password_hash = ? WHERE username = ?";
     private static final String DELETE_USER = "DELETE FROM users WHERE username = ?";
 
     public UserRepository(DatabaseConnectionManager connectionManager) {
@@ -21,24 +21,24 @@ public class UserRepository {
     }
 
 
-    public User findByUsername(String username) {
-        String sql = "SELECT id, email, password, username, full_name, phone_number, status, is_verified FROM users WHERE username = ?";
+    public User findByEmail(String email) {
+        String sql = "SELECT id, email, password_hash, username, full_name, phone_number, status, is_verified FROM users WHERE email = ?";
 
         try (Connection conn = connectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, username);
+            pstmt.setString(1, email);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 return new User(
                         rs.getLong("id"),
                         rs.getString("email"),
-                        rs.getString("password"),
+                        rs.getString("password_hash"),
                         rs.getString("username"),
-                        rs.getString("fullName"),
-                        rs.getString("phoneNumber"),
+                        rs.getString("full_name"),
+                        rs.getString("phone_number"),
                         rs.getString("status"),
-                        rs.getBoolean("isVerified")
+                        rs.getBoolean("is_verified")
                 );
             }
             return null;
@@ -80,7 +80,7 @@ public class UserRepository {
         try (Connection conn = connectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, user.getEmail());
-            pstmt.setString(2, user.getPassword());
+            pstmt.setString(2, user.getPassword_hash());
             pstmt.setString(3, user.getUsername());
             pstmt.setString(4, user.getFull_name());
             pstmt.setString(5, user.getPhone_number());

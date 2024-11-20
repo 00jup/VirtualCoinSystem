@@ -16,12 +16,12 @@ public class AuthenticationController {
     public boolean login() {
         int attempts = 0;
         while (attempts < 5) {
-            System.out.print("아이디 입력: ");
-            String username = scanner.nextLine();
+            System.out.print("이메일 입력: ");
+            String email = scanner.nextLine();
             System.out.print("비밀번호 입력: ");
             String password = scanner.nextLine();
 
-            if (userService.login(username, password)) {
+            if (userService.login(email, password)) {
                 return true;
             }
 
@@ -39,16 +39,16 @@ public class AuthenticationController {
             System.out.print("아이디 입력: ");
             String username = scanner.nextLine();
 
-            String password;
+            String password_hash;
             String confirmPassword;
 
             while (true) {
                 System.out.print("비밀번호 입력: ");
-                password = scanner.nextLine();
+                password_hash = scanner.nextLine();
                 System.out.print("비밀번호 확인: ");
                 confirmPassword = scanner.nextLine();
 
-                if (password.equals(confirmPassword)) {
+                if (password_hash.equals(confirmPassword)) {
                     break;
                 }
                 System.out.println("비밀번호가 일치하지 않는다");
@@ -63,7 +63,7 @@ public class AuthenticationController {
             System.out.print("이름 입력: ");
             String fullName = scanner.nextLine();
 
-            if (userService.register(username, password, email, phoneNumber, fullName)) {
+            if (userService.register(username, password_hash, email, phoneNumber, fullName)) {
                 break;
             }
         }
