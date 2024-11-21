@@ -4,6 +4,8 @@ import main.auth.config.DatabaseAuthInformation;
 import main.auth.config.DatabaseConnectionManager;
 import main.auth.repository.UserRepository;
 import main.auth.service.UserService;
+import main.market.controller.ChartController;
+import main.market.service.ChartService;
 
 import java.util.Scanner;
 
@@ -56,7 +58,31 @@ public class Application {
     }
 
     private void handlePostLogin() {
+        // DB 설정 초기화
+        DatabaseAuthInformation dbInfo = new DatabaseAuthInformation();
+        dbInfo.parse_auth_info("src/main/auth/config/mysql.auth");
+
+        // 의존성 주입
+        DatabaseConnectionManager connectionManager = new DatabaseConnectionManager(dbInfo);
         System.out.println("로그인 성공 - 다음 단계 준비");
-        // TODO: 추가 기능 구현
+        ChartController chartController = new ChartController(new ChartService(connectionManager));
+
+        while (true) {
+            System.out.println("\n1. 시간대별 주문 현황");
+            System.out.println("2. 로그아웃");
+            System.out.print("선택: ");
+
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1":
+                    chartController.displayPriceChart();
+                    break;
+                case "2":
+                    return;
+                default:
+                    System.out.println("잘못된 선택입니다.");
+            }
+        }
+
     }
 }
