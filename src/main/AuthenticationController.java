@@ -36,8 +36,8 @@ public class AuthenticationController {
 
     public void register() {
         while (true) {
-            System.out.print("아이디 입력: ");
-            String username = scanner.nextLine();
+            System.out.print("이메일 입력: ");
+            String email = scanner.nextLine();
 
             String password_hash;
             String confirmPassword;
@@ -51,19 +51,19 @@ public class AuthenticationController {
                 if (password_hash.equals(confirmPassword)) {
                     break;
                 }
-                System.out.println("비밀번호가 일치하지 않는다");
+                System.out.println("비밀번호가 일치하지 않습니다.");
             }
 
-            System.out.print("이메일 입력: ");
-            String email = scanner.nextLine();
+            System.out.print("name 입력: ");
+            String username = scanner.nextLine();
 
             System.out.print("전화번호 입력: ");
             String phoneNumber = scanner.nextLine();
 
-            System.out.print("이름 입력: ");
+            System.out.print("full name 입력: ");
             String fullName = scanner.nextLine();
 
-            if (userService.register(username, password_hash, email, phoneNumber, fullName)) {
+            if (userService.register(email, password_hash, confirmPassword, username, fullName, phoneNumber)) {
                 break;
             }
         }
