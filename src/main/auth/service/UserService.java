@@ -11,6 +11,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public User loginAndGetUser(String email, String password_hash) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && user.getPassword_hash().equals(password_hash)) {
+            return user;
+        }
+        return null;
+    }
+
     public boolean register(String email, String password_hash, String confirmPassword, String username, String full_name, String phoneNumber) {
         if (!password_hash.equals(confirmPassword)) {
             System.out.println("비밀번호 불일치");

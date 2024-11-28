@@ -14,4 +14,6 @@ public class MarketData {
     private int orderCount;
     private double quantity;
     private double price;
+    private double lowPrice;
+    private double highPrice;
 }

@@ -1,19 +1,22 @@
 package main;
 
+import main.account.service.AccountService;
 import main.auth.config.DatabaseAuthInformation;
 import main.auth.config.DatabaseConnectionManager;
+import main.auth.domain.User;
 import main.auth.repository.UserRepository;
 import main.auth.service.UserService;
 import main.market.controller.ChartController;
 import main.market.service.ChartService;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class Application {
     private final Scanner scanner;
     private final AuthenticationController authController;
     private final UserService userService;
-
+    private User currentUser;
 
     public Application() {
         this.scanner = new Scanner(System.in);
@@ -41,7 +44,9 @@ public class Application {
 
             switch (choice.toUpperCase()) {
                 case "1":
-                    loggedIn = authController.login();
+                    // 로그인 성공시 현재 사용자 정보 저장
+                    currentUser = authController.loginAndGetUser();
+                    loggedIn = (currentUser != null);
                     break;
                 case "2":
                     authController.register();
@@ -58,31 +63,42 @@ public class Application {
     }
 
     private void handlePostLogin() {
-        // DB 설정 초기화
+        if (currentUser == null) {
+            System.out.println("로그인이 필요하다");
+            return;
+        }
+
         DatabaseAuthInformation dbInfo = new DatabaseAuthInformation();
         dbInfo.parse_auth_info("src/main/auth/config/mysql.auth");
-
-        // 의존성 주입
         DatabaseConnectionManager connectionManager = new DatabaseConnectionManager(dbInfo);
-        System.out.println("로그인 성공 - 다음 단계 준비");
+        AccountService accountService = new AccountService(connectionManager);
         ChartController chartController = new ChartController(new ChartService(connectionManager));
 
         while (true) {
             System.out.println("\n1. 시간대별 주문 현황");
-            System.out.println("2. 로그아웃");
+            System.out.println("2. 계좌 잔액 조회");
+            System.out.println("3. 로그아웃");
             System.out.print("선택: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    chartController.displayPriceChart();
+                    chartController.displayLiveChart();
                     break;
                 case "2":
+                    BigDecimal balance = accountService.getAccountBalance(currentUser.getId());
+                    if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                        System.out.printf("현재 계좌 잔액: %,.2f원\n", balance);
+                    } else {
+                        System.out.println("계좌 정보를 찾을 수 없다");
+                    }
+                    break;
+                case "3":
                     return;
                 default:
-                    System.out.println("잘못된 선택입니다.");
+                    System.out.println("잘못된 선택이다");
             }
         }
-
     }
+
 }

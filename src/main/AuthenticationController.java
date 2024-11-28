@@ -1,5 +1,6 @@
 package main;
 
+import main.auth.domain.User;
 import main.auth.service.UserService;
 
 import java.util.Scanner;
@@ -7,13 +8,14 @@ import java.util.Scanner;
 public class AuthenticationController {
     private final Scanner scanner;
     private final UserService userService;
+    private User currentUser;
 
     public AuthenticationController(UserService userService) {
         this.scanner = new Scanner(System.in);
         this.userService = userService;
     }
 
-    public boolean login() {
+    public User loginAndGetUser() {
         int attempts = 0;
         while (attempts < 5) {
             System.out.print("이메일 입력: ");
@@ -21,17 +23,19 @@ public class AuthenticationController {
             System.out.print("비밀번호 입력: ");
             String password = scanner.nextLine();
 
-            if (userService.login(email, password)) {
-                return true;
+            User user = userService.loginAndGetUser(email, password);
+            if (user != null) {
+                return user;
             }
 
             System.out.println("로그인 실패 (" + (5 - ++attempts) + "번 남음)");
 
             if (attempts == 5) {
-                return handleFailedAttempts();
+                handleFailedAttempts();
+                return null;
             }
         }
-        return false;
+        return null;
     }
 
     public void register() {
