@@ -16,7 +16,7 @@ public class Trade {
     private Long id;
     private Long userId;
     private Long tradeTypeId;
-    private Long tradeStatusId;
+    private String tradeStatus;
     private Long coinId;
     private BigDecimal quantity;
     private BigDecimal price;

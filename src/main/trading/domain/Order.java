@@ -16,7 +16,7 @@ public class Order {
     private Long id;
     private Long userId;
     private Long orderTypeId;
-    private Long orderStatusId;
+    private String orderStatus;
     private Long coinId;
     private BigDecimal quantity;
     private BigDecimal price;

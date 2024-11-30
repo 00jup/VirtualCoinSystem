@@ -33,12 +33,14 @@ public class TradingService {
             Trade trade = Trade.builder()
                     .userId(order.getUserId())
                     .tradeTypeId(order.getType() == Order.OrderType.BUY ? 1L : 2L)
-                    .tradeStatusId(2L)
+                    .tradeStatus("PENDING")
                     .coinId(order.getCoinId())
                     .quantity(tradeQuantity)
                     .price(matchingOrder.getPrice())
                     .totalAmount(tradeQuantity.multiply(matchingOrder.getPrice()))
                     .build();
+
+            System.out.println("Created Trade: " + trade.toString());  // 디버깅 로그 추가
 
             tradeRepository.save(trade);
 

@@ -14,6 +14,7 @@ import main.trading.repository.TradeRepository;
 import main.trading.service.TradingService;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Scanner;
 
 public class Application {
@@ -25,11 +26,9 @@ public class Application {
     public Application() {
         this.scanner = new Scanner(System.in);
 
-        // DB 설정 초기화
         DatabaseAuthInformation dbInfo = new DatabaseAuthInformation();
         dbInfo.parse_auth_info("src/main/auth/config/mysql.auth");
 
-        // 의존성 주입
         DatabaseConnectionManager connectionManager = new DatabaseConnectionManager(dbInfo);
         UserRepository userRepository = new UserRepository(connectionManager);
         this.userService = new UserService(userRepository);
@@ -48,7 +47,6 @@ public class Application {
 
             switch (choice.toUpperCase()) {
                 case "1":
-                    // 로그인 성공시 현재 사용자 정보 저장
                     currentUser = authController.loginAndGetUser();
                     loggedIn = (currentUser != null);
                     break;
@@ -85,34 +83,53 @@ public class Application {
         while (true) {
             System.out.println("\n1. 시간대별 주문 현황");
             System.out.println("2. 계좌 잔액 조회");
-            System.out.println("3. 매수 주문");
-            System.out.println("4. 매도 주문");
-            System.out.println("5. 로그아웃");
+            System.out.println("3. 입금");
+            System.out.println("4. 출금");
+            System.out.println("5. 매수 주문");
+            System.out.println("6. 매도 주문");
+            System.out.println("7. 로그아웃");
             System.out.print("선택: ");
 
             String choice = scanner.nextLine();
-            switch (choice) {
-                case "1":
-                    chartController.displayLiveChart();
-                    break;
-                case "2":
-                    BigDecimal balance = accountService.getAccountBalance(currentUser.getId());
-                    if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                        System.out.printf("현재 계좌 잔액: %,.2f원\n", balance);
-                    } else {
-                        System.out.println("계좌 정보를 찾을 수 없다");
-                    }
-                    break;
-                case "3":
-                    createBuyOrder(tradingService);
-                    break;
-                case "4":
-                    createSellOrder(tradingService);
-                    break;
-                case "5":
-                    return;
-                default:
-                    System.out.println("잘못된 선택이다");
+            try {
+                switch (choice) {
+                    case "1":
+                        chartController.displayLiveChart();
+                        break;
+                    case "2":
+                        BigDecimal balance = accountService.getAccountBalance(currentUser.getId());
+                        if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                            DecimalFormat formatter = new DecimalFormat("#,###");
+                            System.out.println("현재 계좌 잔액: " + formatter.format(balance.longValue()) + "원");
+                        } else {
+                            System.out.println("계좌 정보를 찾을 수 없다");
+                        }
+                        break;
+                    case "3":
+                        System.out.print("입금액 입력: ");
+                        BigDecimal depositAmount = new BigDecimal(scanner.nextLine());
+                        accountService.deposit(currentUser.getId(), depositAmount);
+                        System.out.println("입금이 완료됐다");
+                        break;
+                    case "4":
+                        System.out.print("출금액 입력: ");
+                        BigDecimal withdrawAmount = new BigDecimal(scanner.nextLine());
+                        accountService.withdraw(currentUser.getId(), withdrawAmount);
+                        System.out.println("출금이 완료됐다");
+                        break;
+                    case "5":
+                        createBuyOrder(tradingService);
+                        break;
+                    case "6":
+                        createSellOrder(tradingService);
+                        break;
+                    case "7":
+                        return;
+                    default:
+                        System.out.println("잘못된 선택이다");
+                }
+            } catch (Exception e) {
+                System.out.println("오류 발생: " + e.getMessage());
             }
         }
     }
@@ -130,7 +147,7 @@ public class Application {
         Order buyOrder = Order.builder()
                 .userId(currentUser.getId())
                 .orderTypeId(1L) // LIMIT order type
-                .orderStatusId(1L) // PENDING status
+                .orderStatus("PENDING") // PENDING status
                 .coinId(coinId)
                 .quantity(quantity)
                 .price(price)
@@ -155,7 +172,7 @@ public class Application {
         Order sellOrder = Order.builder()
                 .userId(currentUser.getId())
                 .orderTypeId(1L) // LIMIT order type
-                .orderStatusId(1L) // PENDING status
+                .orderStatus("PENDING") // PENDING status
                 .coinId(coinId)
                 .quantity(quantity)
                 .price(price)
@@ -166,5 +183,4 @@ public class Application {
         tradingService.createOrder(sellOrder);
         System.out.println("매도 주문이 생성되었다");
     }
-
 }

@@ -16,18 +16,17 @@ public class OrderRepository {
 
     public Long saveOrder(Order order) {
         String sql = order.getType() == Order.OrderType.BUY ?
-                "INSERT INTO ORDER_BUYS (user_id, order_type_id, order_status_id, coin_id, quantity, price, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?)" :
-                "INSERT INTO ORDER_SELLS (user_id, order_type_id, order_status_id, coin_id, quantity, price, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "INSERT INTO ORDER_BUYS (user_id, order_type_id, order_status, coin_id, quantity, price, total_amount) VALUES (?, ?, 'PENDING', ?, ?, ?, ?)" :
+                "INSERT INTO ORDER_SELLS (user_id, order_type_id, order_status, coin_id, quantity, price, total_amount) VALUES (?, ?, 'PENDING', ?, ?, ?, ?)";
 
         try (Connection conn = connectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setLong(1, order.getUserId());
             pstmt.setLong(2, order.getOrderTypeId());
-            pstmt.setLong(3, order.getOrderStatusId());
-            pstmt.setLong(4, order.getCoinId());
-            pstmt.setBigDecimal(5, order.getQuantity());
-            pstmt.setBigDecimal(6, order.getPrice());
-            pstmt.setBigDecimal(7, order.getTotalAmount());
+            pstmt.setLong(3, order.getCoinId());
+            pstmt.setBigDecimal(4, order.getQuantity());
+            pstmt.setBigDecimal(5, order.getPrice());
+            pstmt.setBigDecimal(6, order.getTotalAmount());
 
             pstmt.executeUpdate();
 
@@ -57,21 +56,26 @@ public class OrderRepository {
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                matchingOrders.add(Order.builder()
+                Order matchingOrder = Order.builder()
                         .id(rs.getLong("id"))
                         .userId(rs.getLong("user_id"))
                         .orderTypeId(rs.getLong("order_type_id"))
-                        .orderStatusId(rs.getLong("order_status_id"))
+                        .orderStatus(rs.getString("order_status"))
                         .coinId(rs.getLong("coin_id"))
                         .quantity(rs.getBigDecimal("quantity"))
                         .price(rs.getBigDecimal("price"))
                         .totalAmount(rs.getBigDecimal("total_amount"))
                         .type(order.getType() == Order.OrderType.BUY ? Order.OrderType.SELL : Order.OrderType.BUY)
-                        .build());
+                        .build();
+
+                // 자기 자신의 주문은 제외
+                if (!matchingOrder.getUserId().equals(order.getUserId())) {
+                    matchingOrders.add(matchingOrder);
+                }
             }
             return matchingOrders;
         } catch (SQLException e) {
-            throw new RuntimeException("매칭 주문 조회 실패", e);
+            throw new RuntimeException("매칭 주문 조회 실패: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
