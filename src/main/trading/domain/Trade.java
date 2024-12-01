@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class Trade {
     private Long id;
     private Long userId;
+    private Long counterpartyUserId;
     private Long tradeTypeId;
     private String tradeStatus;
     private Long coinId;

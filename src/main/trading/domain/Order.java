@@ -7,7 +7,6 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// Order.java
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,7 +20,7 @@ public class Order {
     private BigDecimal quantity;
     private BigDecimal price;
     private BigDecimal totalAmount;
-    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
     private OrderType type;
 
     public enum OrderType {
