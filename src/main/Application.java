@@ -109,13 +109,13 @@ public class Application {
                         System.out.print("입금액 입력: ");
                         BigDecimal depositAmount = new BigDecimal(scanner.nextLine());
                         accountService.deposit(currentUser.getId(), depositAmount);
-                        System.out.println("입금이 완료됐다");
+                        System.out.println("입금 완료");
                         break;
                     case "4":
                         System.out.print("출금액 입력: ");
                         BigDecimal withdrawAmount = new BigDecimal(scanner.nextLine());
                         accountService.withdraw(currentUser.getId(), withdrawAmount);
-                        System.out.println("출금이 완료됐다");
+                        System.out.println("출금 완료");
                         break;
                     case "5":
                         createBuyOrder(tradingService);

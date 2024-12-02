@@ -4,6 +4,7 @@ import main.trading.domain.Order;
 import main.trading.domain.Trade;
 import main.trading.repository.OrderRepository;
 import main.trading.repository.TradeRepository;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,33 +40,28 @@ public class TradingService {
                 break;
             }
 
-            BigDecimal tradeQuantity = order.getQuantity().min(matchingOrder.getQuantity());
+            // 가격이 일치하는 경우에만 거래 진행
+            if (order.getPrice().compareTo(matchingOrder.getPrice()) == 0) {
+                if (order.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                    break;
+                }
 
-            // 매칭된 수량만큼 각 주문의 수량 감소
-            order.setQuantity(order.getQuantity().subtract(tradeQuantity));
-            matchingOrder.setQuantity(matchingOrder.getQuantity().subtract(tradeQuantity));
+                BigDecimal tradeQuantity = order.getQuantity().min(matchingOrder.getQuantity());
 
-            Trade trade = Trade.builder()
-                    .userId(order.getUserId())
-                    .counterpartyUserId(matchingOrder.getUserId())
-                    .tradeTypeId(order.getType() == Order.OrderType.BUY ? 1L : 2L)
-                    .tradeStatus("PENDING")
-                    .coinId(order.getCoinId())
-                    .quantity(tradeQuantity)
-                    .price(matchingOrder.getPrice())
-                    .totalAmount(tradeQuantity.multiply(matchingOrder.getPrice()))
-                    .build();
+                order.setQuantity(order.getQuantity().subtract(tradeQuantity));
+                matchingOrder.setQuantity(matchingOrder.getQuantity().subtract(tradeQuantity));
 
-            tradeRepository.save(trade);
+                Trade trade = Trade.builder().userId(order.getUserId()).counterpartyUserId(matchingOrder.getUserId()).tradeTypeId(order.getType() == Order.OrderType.BUY ? 1L : 2L).tradeStatus("PENDING").coinId(order.getCoinId()).quantity(tradeQuantity).price(matchingOrder.getPrice()).totalAmount(tradeQuantity.multiply(matchingOrder.getPrice())).build();
 
-            // 각 주문의 상태 업데이트
-            orderRepository.updateOrderStatus(order);
-            orderRepository.updateOrderStatus(matchingOrder);
+                tradeRepository.save(trade);
 
-            // 만료시간 업데이트 추가
-            orderRepository.updateExpiresAt(order);
-            orderRepository.updateExpiresAt(matchingOrder);
+                orderRepository.updateOrderStatus(order);
+                orderRepository.updateOrderStatus(matchingOrder);
+
+                orderRepository.updateExpiresAt(order);
+                orderRepository.updateExpiresAt(matchingOrder);
+            }
         }
-    }
 
+    }
 }

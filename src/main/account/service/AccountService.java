@@ -48,7 +48,6 @@ public class AccountService {
             throw new RuntimeException("이체 실패: " + e.getMessage());
         }
     }
-
     public BigDecimal getAccountBalance(Long userId) {
         String sql = """
                     SELECT balance 

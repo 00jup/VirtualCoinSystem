@@ -16,27 +16,18 @@ public class OrderRepository {
 
     public void updateExpiresAt(Order order) {
         String sql = order.getType() == Order.OrderType.BUY ?
-                "UPDATE ORDER_BUYS SET expires_at = ?, quantity = CASE WHEN quantity <= 0 THEN 0 ELSE quantity END, order_status = CASE WHEN quantity <= 0 THEN 'FILLED' ELSE 'PENDING' END WHERE id = ?" :
-                "UPDATE ORDER_SELLS SET expires_at = ?, quantity = CASE WHEN quantity <= 0 THEN 0 ELSE quantity END, order_status = CASE WHEN quantity <= 0 THEN 'FILLED' ELSE 'PENDING' END WHERE id = ?";
+                "UPDATE ORDER_BUYS SET expires_at = NOW() WHERE id = ?" :
+                "UPDATE ORDER_SELLS SET expires_at = NOW() WHERE id = ?";
 
         try (Connection conn = connectionManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setTimestamp(1, Timestamp.valueOf(order.getExpiresAt()));
-            pstmt.setLong(2, order.getId());
-
-//            System.out.println("Executing SQL: " + sql);
-//            System.out.println("Order ID: " + order.getId());
-//            System.out.println("Expires At: " + order.getExpiresAt());
-
-            int updatedRows = pstmt.executeUpdate();
-
+            pstmt.setLong(1, order.getId());
+            pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("SQL Error: " + e.getMessage());
             throw new RuntimeException("주문 만료시간 업데이트 실패", e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println("Trade 테이블이 업데이트 되었습니다.");
     }
 
     public Long saveOrder(Order order) {
@@ -118,14 +109,6 @@ public class OrderRepository {
                     BigDecimal.ZERO : order.getQuantity();
 
             String newStatus = quantity.compareTo(BigDecimal.ZERO) == 0 ? "FILLED" : "PENDING";
-
-            System.out.println("================주문 상태 업데이트================");
-            System.out.println("실행 SQL: " + sql);
-            System.out.println("주문 ID: " + order.getId());
-            System.out.println("주문 타입: " + order.getType());
-            System.out.println("현재 수량: " + quantity);
-            System.out.println("변경될 상태: " + newStatus);
-            System.out.println("============================================");
 
             pstmt.setBigDecimal(1, quantity);
             pstmt.setString(2, newStatus);

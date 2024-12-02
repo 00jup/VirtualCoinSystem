@@ -22,12 +22,13 @@ public class TradeRepository {
             pstmt.setLong(1, trade.getUserId());
             pstmt.setLong(2, trade.getCounterpartyUserId());
             pstmt.setLong(3, trade.getTradeTypeId());
-            pstmt.setLong(4, 1L);  // PENDING status id
+            pstmt.setLong(4, 2L);  // COMPLETED status id
             pstmt.setLong(5, trade.getCoinId());
             pstmt.setBigDecimal(6, trade.getQuantity());
             pstmt.setBigDecimal(7, trade.getPrice());
             pstmt.setBigDecimal(8, trade.getTotalAmount());
             pstmt.executeUpdate();
+            System.out.println("거래 체결 완료");
         } catch (SQLException e) {
             throw new RuntimeException("거래 저장 실패", e);
         } catch (Exception e) {
